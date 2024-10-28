@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Historique des Consultations</title>
+        <meta charset="UTF-8">
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    </head>
+    <body>
+        <h1>Predicti'IF - Historique des Consultations</h1>
+
+        <div id="head-band">
+            <button id="bouton-accueil-connecte">Accueil</button>
+            <button id="bouton-voir-liste">Voir liste des mediums</button>
+            <button id="bouton-profil">Profil astral</button>
+            <button id="logout">Déconnexion</button>
+        </div>
+
+        <div id="corps">
+            <div id="consultation-history"></div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                // Récupération et affichage de l'historique des consultations
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'GET',
+                    data: {todo: 'listerConsultations'},
+                    dataType: 'json'
+                })
+                .done(function (response) {
+                    console.log("Réponse reçue pour 'listerConsultations'.");
+                    var consultationHistory = $("#consultation-history");
+                    if (response.consultations && response.consultations.length > 0) {
+                        response.consultations.forEach(function (consultation) {
+                            var consultationHtml = `<p>Date: ${consultation.date}, Medium: ${consultation.denominationMedium}, Type: ${consultation.type}, Genre: ${consultation.genre}</p>`;
+                            consultationHistory.append(consultationHtml);
+                        });
+                    } else {
+                        consultationHistory.html("<p>Aucune consultation trouvée.</p>");
+                    }
+                })
+                .fail(function (error) {
+                    console.error('Échec de l\'appel AJAX pour lister les consultations:', error);
+                    $("#consultation-history").html("<p>Erreur lors de la récupération des consultations.</p>");
+                });
+
+                // Gestion de la déconnexion
+                $('#logout').on('click', function () {
+                    console.log("Tentative de déconnexion...");
+                    $.ajax({
+                        url: './ActionServlet',
+                        method: 'POST',
+                        data: {todo: 'deconnexion'},
+                        dataType: 'json'
+                    })
+                    .done(function (response) {
+                        if (response.success) {
+                            console.log("Déconnexion réussie.");
+                            window.location.href = 'index.html';
+                        } else {
+                            console.error("Échec de la déconnexion:", response.message);
+                            alert("Déconnexion échouée: " + response.message);
+                        }
+                    })
+                    .fail(function (error) {
+                        console.error('Erreur lors de la déconnexion:', error);
+                        alert("Erreur lors de l'appel AJAX: " + error.statusText);
+                    });
+                });
+
+                // Redirections
+                $('#bouton-accueil-connecte').on('click', function () {
+                    console.log("Redirection vers la page d'accueil.");
+                    window.location.href = 'index.html';
+                });
+
+                $('#bouton-profil').on('click', function () {
+                    console.log("Redirection vers le profil astral.");
+                    window.location.href = 'profilAstral.html';
+                });
+
+                $('#bouton-voir-liste').on('click', function () {
+                    console.log("Redirection vers la liste des mediums.");
+                    window.location.href = 'listeMedium.html';
+                });
+            });
+        </script>
+    </body>
+</html>

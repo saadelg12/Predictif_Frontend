@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Accueil</title>
+        <link href="index.css" rel="stylesheet" type="text/css">
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    </head>
+    <body>
+        <div id="header">
+            <img src="logo1.png" alt="Logo" id="logo1">
+
+            <div id="nav-non-connecte">
+                <div id="buttons">
+                    <button id="bouton-voir-liste" class="button">Voir liste medium</button>
+                    <button id="bouton-login" class="button">Login/Register</button>
+                    <!--
+                    <div id="medium-list"></div>
+                    -->
+                </div>
+            </div>
+
+            <div id="nav-connecte-client" style="display: none;">
+                <div id="buttons">
+                    <button id="bouton-voir-liste-connecte" class="button">Voir liste medium</button>
+                    <button id="bouton-historique" class="button">Voir historique</button>
+                    <button id="bouton-profil" class="button">Profil astral</button>
+                    <button id="logout-client" class="button">Logout</button>
+                    <!--
+                    <div id="medium-list-client"></div>
+                    -->
+                </div>
+            </div>
+
+            <div id="nav-connecte-employe" style="display: none;">
+                <div id="buttons">
+                    <button id="bouton-voir-commentaire" class="button">Commentaires</button>
+                    <button id="logout-employe" class="button">Logout</button>
+                    <button id="consultation-attente" class="button">Consultation en Attente !</button>
+                    <!--
+                    <div id="medium-list-employe"></div>< 
+                    -->
+                </div>
+            </div>
+        </div>
+
+        <img src="logo2.png" alt="Logo" id="logo2">
+
+        <div id="description">
+            <p>Plongez dans l'univers mystique du zodiaque avec notre site web révolutionnaire! 
+                Notre plateforme innovante utilise les anciennes connaissances astrologiques pour vous offrir 
+                des prédictions personnalisées et des conseils éclairés sur votre avenir. Que vous soyez curieux de découvrir 
+                ce que les étoiles réservent pour vous ou que vous cherchiez des réponses à 
+                vos questions les plus pressantes, notre équipe d'experts astrologues est là pour vous guider.</p>
+        </div>
+
+        <div class="carousel-container">
+            <div class="carousel">
+                <div class="carousel-item">
+                    <img src="medium1.png" alt="Professeur Tran">
+                </div>
+                <div class="carousel-item">
+                    <img src="medium2.png" alt="Serena">
+                </div>
+                <div class="carousel-item">
+                    <img src="medium3.png" alt="Endora">
+                </div>
+                <div class="carousel-item">
+                    <img src="medium4.png" alt="Mme Irma">
+                </div>
+                <div class="carousel-item">
+                    <img src="medium5.png" alt="Mr M">
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                console.log("Document ready");
+
+                // Vérifier l'état de la session via une requête AJAX
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'GET',
+                    data: {
+                        todo: 'verifierConnexion'
+                    },
+                    dataType: 'json'
+                })
+                        .done(function (response) {
+                            console.log("verifierConnexion response:", response.connected);
+                            if ((response.idClient !== null) && (response.idEmploye === null)) {
+                                $('#nav-non-connecte').hide();
+                                $('#nav-connecte-client').show();
+                                $('#nav-connecte-employe').hide();
+                                $.ajax({
+                                    url: './ActionServlet',
+                                    method: 'GET',
+                                    data: {todo: 'listerMediums'},
+                                    dataType: 'json'
+                                }).done(function (response) {
+                                    console.log("listerMediums response:", response);
+                                    var mediumList = $("#medium-list-client");
+                                    if (response.mediums && response.mediums.length > 0) {
+                                        response.mediums.forEach(function (medium) {
+                                            var mediumHtml = `<p>Nom: ${medium.denomination}</p>`;
+                                            mediumList.append(mediumHtml);
+                                        });
+                                    } else {
+                                        mediumList.html("<p>Aucun medium trouvé.</p>");
+                                    }
+                                }).fail(function (error) {
+                                    console.log('Error listerMediums:', error);
+                                    $("#medium-list-client").html("<p>Erreur lors de la récupération des mediums.</p>");
+                                });
+                            } else if ((response.idClient === null) && (response.idEmploye !== null)) {
+                                $('#nav-non-connecte').hide();
+                                $('#nav-connecte-client').hide();
+                                $('#nav-connecte-employe').show();
+
+                                $.ajax({
+                                    url: './ActionServlet',
+                                    method: 'GET',
+                                    data: {todo: 'afficherConsultationEnCoursEmploye'}, // Assurez-vous que cette action est correctement configurée dans votre servlet
+                                    dataType: 'json'
+                                }).done(function (response) {
+                                    if (response.idConsultation) {
+                                        $('#consultation-attente').show(); // Affichez le bouton si une consultation est en attente
+                                    } else {
+                                        $('#consultation-attente').hide(); // Masquez le bouton s'il n'y a pas de consultation en attente
+                                    }
+                                }).fail(function (error) {
+                                    console.log('Error afficherConsultationEnCoursEmploye', error);  // Modification pour refléter le changement de nom de l'action
+                                    $("#consultation-attente").html("<p>Erreur lors de la récupération de la consultation en attente.</p>");
+                                });
+
+                                $.ajax({
+                                    url: './ActionServlet',
+                                    method: 'GET',
+                                    data: {todo: 'listerTopMedium'}, // Assurez-vous que cette action est correctement configurée dans votre servlet
+                                    dataType: 'json'
+                                }).done(function (response) {
+                                    console.log("listerTopMedium response:", response);  // Changement du nom pour correspondre à l'action spécifique
+                                    var mediumList = $("#medium-list-employe");
+                                    if (response.mediums && response.mediums.length > 0) {
+                                        response.mediums.forEach(function (medium) {
+                                            var mediumInfo = `<p>Nom: ${medium.denomination}</p>`;
+                                            mediumList.append(mediumInfo);
+                                        });
+                                    } else {
+                                        mediumList.html("<p>Aucun medium trouvé.</p>");
+                                    }
+                                }).fail(function (error) {
+                                    console.log('Error listerTopMedium:', error);  // Modification pour refléter le changement de nom de l'action
+                                    $("#medium-list-employe").html("<p>Erreur lors de la récupération des mediums.</p>");
+                                });
+
+                            } else {
+                                $('#nav-connecte-employe').hide();
+                                $('#nav-non-connecte').show();
+                                $('#nav-connecte-client').hide();
+                                $.ajax({
+                                    url: './ActionServlet',
+                                    method: 'GET',
+                                    data: {todo: 'listerMediums'},
+                                    dataType: 'json'
+                                }).done(function (response) {
+                                    console.log("listerMediums response:", response);
+                                    var mediumList = $("#medium-list");
+                                    if (response.mediums && response.mediums.length > 0) {
+                                        response.mediums.forEach(function (medium) {
+                                            var mediumHtml = `<p>Nom: ${medium.denomination}</p>`;
+                                            mediumList.append(mediumHtml);
+                                        });
+                                    } else {
+                                        mediumList.html("<p>Aucun medium trouvé.</p>");
+                                    }
+                                }).fail(function (error) {
+                                    console.log('Error listerMediums:', error);
+                                    $("#medium-list").html("<p>Erreur lors de la récupération des mediums.</p>");
+                                });
+                            }
+                        })
+                        .fail(function (error) {
+                            console.log('Error verifierConnexion:', error); // LOG dans Console Javascript
+                        });
+
+                // Déconnexion lors du clic sur le bouton "Logout"
+                $('#logout-client').on('click', function () {
+                    console.log("Logout clicked");
+                    $.ajax({
+                        url: './ActionServlet',
+                        method: 'POST',
+                        data: {
+                            todo: 'deconnexion'
+                        },
+                        dataType: 'json'
+                    })
+                            .done(function () {
+                                console.log("Logout successful");
+                                window.location.href = 'index.html';
+                            })
+                            .fail(function (error) {
+                                console.log('Error deconnexion:', error); // LOG dans Console Javascript
+                                alert("Erreur lors de l'appel AJAX");
+                            });
+                });
+
+                $('#logout-employe').on('click', function () {
+                    console.log("Logout clicked");
+                    $.ajax({
+                        url: './ActionServlet',
+                        method: 'POST',
+                        data: {
+                            todo: 'deconnexion'
+                        },
+                        dataType: 'json'
+                    })
+                            .done(function () {
+                                console.log("Logout successful");
+                                window.location.href = 'index.html';
+                            })
+                            .fail(function (error) {
+                                console.log('Error deconnexion:', error); // LOG dans Console Javascript
+                                alert("Erreur lors de l'appel AJAX");
+                            });
+                });
+
+                // Redirection vers la liste de mediums lors du clic sur le bouton "Voir liste medium"
+                $('#bouton-voir-liste, #bouton-voir-liste-connecte').on('click', function () {
+                    console.log("Redirect to listeMedium.html");
+                    window.location.href = 'listeMedium.html';
+                });
+
+                // Redirection vers la page de login/register lors du clic sur le bouton "Login/Register"
+                $('#bouton-login').on('click', function () {
+                    console.log("Redirect to login.html");
+                    window.location.href = 'login.html';
+                });
+
+                $('#consultation-attente').on('click', function () {
+                    console.log("Redirect to profilClientEmploye.html");
+                    window.location.href = 'profilClientEmploye.html';
+                });
+
+
+                // Redirection vers le profil astral lors du clic sur le bouton "Profil astral"
+                $('#bouton-profil').on('click', function () {
+                    console.log("Redirect to profilAstral.html");
+                    window.location.href = 'profilAstral.html';
+                });
+
+                $('#bouton-historique').on('click', function () {
+                    console.log("Redirect to login.html");
+                    window.location.href = 'historique.html';
+                });
+                $('#bouton-voir-commentaire').on('click', function () {
+                    console.log("Redirect to commentaires.html");
+                    window.location.href = 'commentaires.html';
+                });
+            });
+        </script>
+    </body>
+</html>

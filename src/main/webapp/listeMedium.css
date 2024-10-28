@@ -1,0 +1,110 @@
+body {
+    font-family: 'Arial', sans-serif;
+    color: black;
+    background-color: #FFFFFF;
+    margin: 0;
+    padding: 0;
+}
+
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+}
+
+#logo1 {
+    width: 120px; /* Adjust the size of the logo to make it larger */
+    margin-left: 20px; /* Add margin so it is not cut off */
+}
+
+#logo3 {
+    width: 100%; /* Adjust the size of the logo to make it very large */
+    display: flex;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.nav-button {
+    background-color: #D3CCE3;
+    color: black;
+    border: none;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 0 10px;
+}
+
+#hero {
+    position: relative;
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
+}
+
+#hero img {
+    width: 100%;
+    height: auto;
+}
+
+#hero .overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+#hero h1 {
+    font-size: 48px;
+    margin: 0;
+}
+
+.medium-card {
+    display: flex;
+    align-items: center;
+    background-color: #E6E6FA;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.medium-img {
+    width: 100px;
+    height: 100 px;
+    border-radius: 10px;
+    margin-right: 20px;
+}
+
+.medium-info {
+    flex-grow: 1;
+}
+
+.medium-info h2 {
+    margin: 0 0 10px;
+    font-size: 24px;
+}
+
+.medium-info p {
+    margin: 5px 0;
+}
+
+.select-button {
+    background-color: #FFD700;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+}
